@@ -248,7 +248,7 @@ JSObject *UrlParser::parse(JSContext *cx, std::string_view body) {
 
   while (true) {
     jsurl::params_at(params.get(), index, &param);
-    if (param.done || param.name.data == nullptr || param.value.data == nullptr) {
+    if (param.done) {
       break;
     }
 

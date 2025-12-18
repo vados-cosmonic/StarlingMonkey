@@ -520,12 +520,7 @@ impl SpecSlice<'_> {
 
 impl<'a> From<&'a str> for SpecSlice<'a> {
     fn from(s: &'a str) -> SpecSlice<'a> {
-        let ptr = if !s.is_empty() {
-            s.as_ptr()
-        } else {
-            std::ptr::null()
-        };
-        SpecSlice::new(ptr, s.len())
+        SpecSlice::new(s.as_ptr(), s.len())
     }
 }
 

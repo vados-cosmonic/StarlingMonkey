@@ -8,6 +8,7 @@
 #include "host_api.h"
 
 #include "js/TypeDecls.h"
+#include "js/String.h"
 #include "js/Value.h"
 #include "mozilla/Assertions.h"
 
@@ -52,7 +53,7 @@ bool FormDataIterator::next(JSContext *cx, unsigned argc, JS::Value *vp) {
   JS::RootedValue val_val(cx, entry.value);
 
   if (type != ITER_TYPE_VALUES) {
-    JS::RootedString key_str(cx, JS_NewStringCopyN(cx, entry.name.data(), entry.name.size()));
+    JS::RootedString key_str(cx, JS_NewStringCopyUTF8N(cx, JS::UTF8Chars(entry.name.data(), entry.name.size())));
     if (!key_str) {
       return false;
     }
