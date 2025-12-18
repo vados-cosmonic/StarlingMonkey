@@ -444,8 +444,10 @@ pub struct CVec<T> {
 
 impl<T> Drop for CVec<T> {
     fn drop(&mut self) {
-        unsafe {
-            self.ptr.drop_in_place();
+        if !self.ptr.is_null() && self.cap != 0 {
+            unsafe {
+                let _ = Vec::from_raw_parts(self.ptr, self.len, self.cap);
+            }
         }
     }
 }
@@ -490,8 +492,10 @@ impl<'a> From<&'a SpecString> for &'a str {
 
 impl Drop for SpecString {
     fn drop(&mut self) {
-        unsafe {
-            self.data.drop_in_place();
+        if !self.data.is_null() && self.cap != 0 {
+            unsafe {
+                let _ = String::from_raw_parts(self.data, self.len, self.cap);
+            }
         }
     }
 }
