@@ -650,7 +650,7 @@ bool Headers::init_entries(JSContext *cx, HandleObject self, HandleValue initv) 
   // TODO: But note: forbidden headers have to be applied correctly.
   bool consumed = false;
   if (!core::maybe_consume_sequence_or_record<host_api::HostString, validate_header_name,
-                                              append_valid_header>(cx, initv, self, &consumed,
+                                              append_valid_header, append_valid_header>(cx, initv, self, &consumed,
                                                                    "Headers")) {
     return false;
   }

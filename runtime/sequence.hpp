@@ -13,7 +13,7 @@ namespace core {
  * Extract <key,value> pairs from the given value if it is either a
  * sequence<sequence<Value> or a record<Value, Value>.
  */
-template <typename T, auto validate, auto apply>
+template <typename T, auto validate, auto apply_sequence, auto apply_record>
 bool maybe_consume_sequence_or_record(JSContext *cx, JS::HandleValue initv, JS::HandleObject target,
                                       bool *consumed, const char *ctor_name,
                                       const char *alt_text = "") {
@@ -92,7 +92,7 @@ bool maybe_consume_sequence_or_record(JSContext *cx, JS::HandleValue initv, JS::
           return api::throw_error(cx, api::Errors::InvalidSequence, ctor_name, alt_text);
         }
 
-        if (!apply(cx, target, std::move(validated_key), value, ctor_name)) {
+        if (!apply_sequence(cx, target, std::move(validated_key), value, ctor_name)) {
           return false;
         }
       }
@@ -128,7 +128,7 @@ bool maybe_consume_sequence_or_record(JSContext *cx, JS::HandleValue initv, JS::
       if (!JS_GetPropertyById(cx, init, curId, &value)) {
         return false;
       }
-      if (!apply(cx, target, std::move(validated_key), value, ctor_name)) {
+      if (!apply_record(cx, target, std::move(validated_key), value, ctor_name)) {
         return false;
       }
     }

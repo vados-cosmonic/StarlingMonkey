@@ -184,7 +184,7 @@ jsurl::JSUrlSearchParams *URLSearchParams::get_params(JSObject *self) {
 }
 
 namespace {
-jsurl::SpecString append_impl_validate(JSContext *cx, JS::HandleValue key, const char *_) {
+jsurl::SpecString validate(JSContext *cx, JS::HandleValue key, const char *_) {
   return core::encode_spec_string(cx, key);
 }
 bool append_impl(JSContext *cx, JS::HandleObject self, jsurl::SpecString key, JS::HandleValue val,
@@ -199,6 +199,18 @@ bool append_impl(JSContext *cx, JS::HandleObject self, jsurl::SpecString key, JS
   jsurl::params_append(params, key, value);
   return true;
 }
+bool set_impl(JSContext *cx, JS::HandleObject self, jsurl::SpecString key,
+              JS::HandleValue val, const char *_) {
+  auto *const params = URLSearchParams::get_params(self);
+
+  auto value = core::encode_spec_string(cx, val);
+  if (!value.data) {
+    return false;
+  }
+
+  jsurl::params_set(params, key, value);
+  return true;
+}
 } // namespace
 
 jsurl::SpecSlice URLSearchParams::serialize(JSContext *cx, JS::HandleObject self) {
@@ -207,7 +219,7 @@ jsurl::SpecSlice URLSearchParams::serialize(JSContext *cx, JS::HandleObject self
 
 bool URLSearchParams::append(JSContext *cx, unsigned argc, JS::Value *vp) {
   METHOD_HEADER(2)
-  auto value = append_impl_validate(cx, args[0], "append");
+  auto value = validate(cx, args[0], "append");
   if (!append_impl(cx, self, value, args[1], "append")) {
     return false;
   }
@@ -416,7 +428,7 @@ JSObject *URLSearchParams::create(JSContext *cx, JS::HandleObject self,
 
   bool consumed = false;
   const char *alt_text = ", or a value that can be stringified";
-  if (!core::maybe_consume_sequence_or_record<jsurl::SpecString, append_impl_validate, append_impl>(
+  if (!core::maybe_consume_sequence_or_record<jsurl::SpecString, validate, append_impl, set_impl>(
           cx, params_val, self, &consumed, "URLSearchParams", alt_text)) {
     return nullptr;
   }
